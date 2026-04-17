@@ -59,7 +59,9 @@ jobs:
   build-binaries:
     name: Build ${{ matrix.name }}
     needs: check-release
-    if: (needs.check-release.outputs.should_release == 'true' || needs.check-release.outputs.needs_github_release == 'true') && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
+    if: |
+      (github.ref == 'refs/heads/support-anolis-os-8.4' && matrix.skip_on_anolis != 'true') ||
+      ((needs.check-release.outputs.should_release == 'true' || needs.check-release.outputs.needs_github_release == 'true') && github.ref != 'refs/heads/support-anolis-os-8.4')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
