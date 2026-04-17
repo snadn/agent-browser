@@ -178,12 +178,10 @@ jobs:
           docker build -t agent-browser-glibc2.28 -f docker/Dockerfile.glibc2.28 .
           docker run --rm \
             -v "${{ github.workspace }}/cli:/build" \
-            -v "$HOME/.cargo:/root/.cargo" \
-            -v "$HOME/.rustup:/root/.rustup" \
+            -v "$HOME/.cargo/bin:/usr/local/bin" \
             -w /build \
-            -e PATH="/root/.cargo/bin:$PATH" \
             agent-browser-glibc2.28 \
-            cargo build --release --target x86_64-unknown-linux-gnu
+            /usr/local/bin/cargo build --release --target x86_64-unknown-linux-gnu
 
       - name: Build with zigbuild
         if: matrix.use_zigbuild == 'true' && matrix.use_glibc2_28 != 'true' && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
