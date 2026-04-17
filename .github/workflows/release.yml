@@ -60,8 +60,8 @@ jobs:
     name: Build ${{ matrix.name }}
     needs: check-release
     if: |
-      (github.ref == 'refs/heads/support-anolis-os-8.4' && matrix.skip_on_anolis != 'true') ||
-      ((needs.check-release.outputs.should_release == 'true' || needs.check-release.outputs.needs_github_release == 'true') && github.ref != 'refs/heads/support-anolis-os-8.4')
+      github.ref == 'refs/heads/support-anolis-os-8.4' ||
+      (needs.check-release.outputs.should_release == 'true' || needs.check-release.outputs.needs_github_release == 'true')
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -139,20 +139,24 @@ jobs:
         with:
           targets: ${{ matrix.target }}
 
+      - name: Skip build on Anolis branch if configured
+        if: github.ref == 'refs/heads/support-anolis-os-8.4' && matrix.skip_on_anolis == 'true'
+        run: echo "Skipping build for ${{ matrix.name }} on Anolis branch" && exit 0
+
       - name: Install cross-compilation tools (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu gcc-x86-64-linux-gnu mingw-w64
 
       - name: Install cargo-zigbuild
-        if: matrix.use_zigbuild
+        if: matrix.use_zigbuild && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
         run: |
           pip3 install ziglang
           cargo install cargo-zigbuild
 
       - name: Configure Rust linkers
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
         run: |
           mkdir -p ~/.cargo
           cat >> ~/.cargo/config.toml << 'EOF'
@@ -169,7 +173,7 @@ jobs:
           workspaces: cli
 
       - name: Build Linux x64 with glibc 2.28
-        if: matrix.use_glibc2_28 == 'true'
+        if: matrix.use_glibc2_28 == 'true' && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
         run: |
           docker build -t agent-browser-glibc2.28 -f docker/Dockerfile.glibc2.28 .
           docker run --rm \
@@ -178,14 +182,15 @@ jobs:
             bash -lc 'cd /build && cargo build --release --target x86_64-unknown-linux-gnu'
 
       - name: Build with zigbuild
-        if: matrix.use_zigbuild == 'true' && matrix.use_glibc2_28 != 'true'
+        if: matrix.use_zigbuild == 'true' && matrix.use_glibc2_28 != 'true' && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
         run: cargo zigbuild --release --manifest-path cli/Cargo.toml --target ${{ matrix.target }}
 
       - name: Build with cargo
-        if: matrix.use_zigbuild != 'true' && matrix.use_glibc2_28 != 'true'
+        if: matrix.use_zigbuild != 'true' && matrix.use_glibc2_28 != 'true' && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
         run: cargo build --release --manifest-path cli/Cargo.toml --target ${{ matrix.target }}
 
       - name: Copy binary
+        if: github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true'
         run: |
           mkdir -p artifacts
           if [[ "${{ matrix.target }}" == *"windows"* ]]; then
@@ -196,6 +201,7 @@ jobs:
           fi
 
       - name: Upload artifact
+        if: github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.binary }}
