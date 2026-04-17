@@ -50,6 +50,12 @@ pnpm link --global  # Makes agent-browser available globally
 agent-browser install
 ```
 
+For Anolis OS release 8.4 compatibility, build the Linux x64 binary in the glibc 2.28 Docker image:
+
+```bash
+npm run build:native:glibc2.28
+```
+
 ### Linux Dependencies
 
 On Linux, install system dependencies:

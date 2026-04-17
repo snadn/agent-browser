@@ -1,0 +1,27 @@
+FROM debian:buster
+
+# Use archived Debian repositories because Buster is past standard support.
+RUN printf 'deb http://archive.debian.org/debian buster main contrib non-free\n' > /etc/apt/sources.list \
+    && printf 'deb http://archive.debian.org/debian-security buster/updates main contrib non-free\n' >> /etc/apt/sources.list \
+    && printf 'Acquire::Check-Valid-Until "false";\n' > /etc/apt/apt.conf.d/99no-check-valid-until \
+    && apt-get update -o Acquire::Check-Valid-Until=false \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        curl \
+        ca-certificates \
+        git \
+        gcc \
+        g++ \
+        pkg-config \
+        libssl-dev \
+        zlib1g-dev \
+        libbz2-dev \
+        liblzma-dev \
+        libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+ENV PATH=/root/.cargo/bin:$PATH
+
+WORKDIR /build
+ENTRYPOINT ["/bin/bash"]
