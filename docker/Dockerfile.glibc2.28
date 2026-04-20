@@ -20,5 +20,11 @@ RUN printf 'deb http://archive.debian.org/debian buster main contrib non-free\n'
         libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN rustup default stable
+RUN rustup target add x86_64-unknown-linux-gnu
+
 WORKDIR /build
 ENTRYPOINT ["/bin/bash"]
