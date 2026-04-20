@@ -45,9 +45,31 @@ build_target() {
     fi
 }
 
+build_glibc2_28_target() {
+    local output_name=$1
+    local dockerfile=$2
+
+    echo -e "${YELLOW}Building Linux x64 with glibc 2.28...${NC}"
+
+    docker build -t agent-browser-builder-glibc2.28 -f "$dockerfile" "$PROJECT_ROOT"
+
+    docker run --rm \
+        -v "$PROJECT_ROOT/cli:/build" \
+        -v "$OUTPUT_DIR:/output" \
+        agent-browser-builder-glibc2.28 \
+        -c "cd /build && cargo build --release --target x86_64-unknown-linux-gnu && cp /build/target/x86_64-unknown-linux-gnu/release/agent-browser /output/${output_name} && chmod +x /output/${output_name}"
+
+    if [ -f "$OUTPUT_DIR/$output_name" ]; then
+        echo -e "${GREEN}✓ Built ${output_name}${NC}"
+    else
+        echo -e "${RED}✗ Failed to build ${output_name}${NC}"
+        return 1
+    fi
+}
+
 # Build for each platform
 # Linux x64
-build_target "x86_64-unknown-linux-gnu" "agent-browser-linux-x64"
+build_glibc2_28_target "agent-browser-linux-x64" "$PROJECT_ROOT/docker/Dockerfile.glibc2.28"
 
 # Linux ARM64
 build_target "aarch64-unknown-linux-gnu" "agent-browser-linux-arm64"

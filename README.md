@@ -50,6 +50,16 @@ pnpm link --global  # Makes agent-browser available globally
 agent-browser install
 ```
 
+For Anolis OS release 8.4 compatibility, use the musl-linked binary (recommended) or build with glibc 2.28:
+
+```bash
+# Recommended: Use musl binary (statically linked, no GLIBC dependencies)
+npm run build:all  # Includes musl binaries
+
+# Alternative: Build with glibc 2.28
+npm run build:native:glibc2.28
+```
+
 ### Linux Dependencies
 
 On Linux, install system dependencies:
