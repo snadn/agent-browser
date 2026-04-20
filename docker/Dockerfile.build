@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     libc6-dev-arm64-cross \
     libc6-dev-amd64-cross \
     mingw-w64 \
+    musl-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Add Rust targets for all platforms
