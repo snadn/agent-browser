@@ -147,7 +147,7 @@ jobs:
         if: runner.os == 'Linux' && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-x86-64-linux-gnu mingw-w64
+          sudo apt-get install -y gcc-aarch64-linux-gnu gcc-x86-64-linux-gnu mingw-w64 musl-tools
 
       - name: Install cargo-zigbuild
         if: matrix.use_zigbuild && (github.ref != 'refs/heads/support-anolis-os-8.4' || matrix.skip_on_anolis != 'true')
