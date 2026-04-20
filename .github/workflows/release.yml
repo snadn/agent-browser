@@ -90,7 +90,7 @@ jobs:
             target: aarch64-unknown-linux-musl
             binary: agent-browser-linux-musl-arm64
             use_zigbuild: true
-            skip_on_anolis: 'false'
+            skip_on_anolis: 'true'
           - name: Windows x64
             os: ubuntu-latest
             target: x86_64-pc-windows-gnu
